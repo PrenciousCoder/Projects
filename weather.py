@@ -4,7 +4,7 @@ import sys
 
 
 #API Declarartion
-api_key="c185ca6a1b3e30e58acfcdeaba5419f6"
+api_key=""
 base_url="https://api.openweathermap.org/data/2.5/weather?"
 
 city=sys.argv[1]
