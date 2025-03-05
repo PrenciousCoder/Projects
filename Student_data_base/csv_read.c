@@ -20,6 +20,7 @@ struct Student {
     float portfolio_rating;
     float coverletter_rating;
     float refletter_rating;
+    float average;
 };
 
 //! Function to read data from the CSV file
@@ -143,7 +144,9 @@ float find_average_grade_by_id(struct Student *students,int count,int id){
             float sum = students[i].english_grade + students[i].math_grade + students[i].sciences_grade +
                         students[i].language_grade + students[i].portfolio_rating + students[i].coverletter_rating +
                         students[i].refletter_rating;
+            
             float average=sum/7.0;
+            students[i].average=average;
             printf("%f",average);
             return average;  // Average of 7 grades
         }
@@ -151,6 +154,31 @@ float find_average_grade_by_id(struct Student *students,int count,int id){
     return -1;
 
 }
+
+void csv_write_average(const char *filename,struct Student *students,int max_students){
+    FILE *file=fopen(filename,"w");
+    if(file==NULL){
+        perror("Error opening the file");
+        return;
+    }
+
+    //!New header with column section
+    fprintf(file,"id,name,nationality,city,latitude,longitude,gender,ethnic.group,age,english.grade,math.grade,sciences.grade,language.grade,portfolio.rating,coverletter.rating,refletter.rating,Average\n");
+
+    //!Writing ythe student data
+    for(int i=0;i<max_students;i++){
+        fprintf(file, "%d,%s,%s,%s,%.2f,%.2f,%s,%s,%d,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\n",
+            students[i].id, students[i].name, students[i].nationality, students[i].city,
+            students[i].latitude, students[i].longitude, students[i].gender, students[i].ethnic_group,
+            students[i].age, students[i].english_grade, students[i].math_grade, students[i].sciences_grade,
+            students[i].language_grade, students[i].portfolio_rating, students[i].coverletter_rating,
+            students[i].refletter_rating, students[i].average);
+}
+    fclose(file);
+}
+
+
+
 
 int main() {
     const char *filename = "/Users/devanshpanchal/Desktop/Technische Informatik TUB/home_projects/Student_data_base/student-dataset.csv";  // Change to your file path
@@ -163,8 +191,12 @@ int main() {
     }
 
     //AlldisplayStudents(students, studentCount);
-    find_student_by_id(students,studentCount,10);
-    find_average_grade_by_id(students,studentCount,10);
+    //find_student_by_id(students,studentCount,10);
+    //find_average_grade_by_id(students,studentCount,10);
+    for(int i=0;i<studentCount;i++){
+        find_average_grade_by_id(students,studentCount,i);
+    }
+    csv_write_average(filename,students,studentCount);
 
     return 0;
 }
