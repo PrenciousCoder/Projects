@@ -22,7 +22,7 @@ struct Student {
     float refletter_rating;
 };
 
-// Function to read data from the CSV file
+//! Function to read data from the CSV file
 int read_csv(const char *filename, struct Student *students, int max_students) {
     FILE *file = fopen(filename, "r");
     if (!file) {
@@ -47,8 +47,9 @@ int read_csv(const char *filename, struct Student *students, int max_students) {
             break;  // Stop if we've reached the max number of students
         }
 
-        // Print the line to debug
-        printf("Reading line: %s\n", line);
+        //?Print the line to debug
+        //!Funtion to print the lines(Commented out)
+        //printf("Reading line: %s\n", line);
 
         // Parse the CSV line into the Student structure
         int parsed = sscanf(line, "%d,%99[^,],%49[^,],%49[^,],%f,%f,%9[^,],%49[^,],%d,%f,%f,%f,%f,%f,%f,%f",
@@ -76,8 +77,8 @@ int read_csv(const char *filename, struct Student *students, int max_students) {
     return count;
 }
 
-// Function to display student data
-void displayStudents(struct Student *students, int count) {
+//! Function to display student data
+void AlldisplayStudents(struct Student *students, int count) {
     if (count == 0) {
         printf("No students found.\n");
         return;
@@ -100,6 +101,57 @@ void displayStudents(struct Student *students, int count) {
     }
 }
 
+//!Display a Student by ID
+void DisplayStudentbyID(struct Student students[],int i){
+    printf("\nStudent Found:\n");
+    printf("ID: %d\n", students[i].id);
+    printf("Name: %s\n", students[i].name);
+    printf("Nationality: %s\n", students[i].nationality);
+    printf("City: %s\n", students[i].city);
+    printf("Latitude: %.4f\n", students[i].latitude);
+    printf("Longitude: %.4f\n", students[i].longitude);
+    printf("Gender: %s\n", students[i].gender);
+    printf("Ethnic Group: %s\n", students[i].ethnic_group);
+    printf("Age: %d\n", students[i].age);
+    printf("English Grade: %.2f\n", students[i].english_grade);
+    printf("Math Grade: %.2f\n", students[i].math_grade);
+    printf("Sciences Grade: %.2f\n", students[i].sciences_grade);
+    printf("Language Grade: %.2f\n", students[i].language_grade);
+    printf("Portfolio Rating: %.2f\n", students[i].portfolio_rating);
+    printf("Cover Letter Rating: %.2f\n", students[i].coverletter_rating);
+    printf("Reference Letter Rating: %.2f\n", students[i].refletter_rating);
+    return;  //!displaying finished
+}
+
+//! Student Search by ID
+struct Student* find_student_by_id(struct Student *students,int count,int id){
+    for(int i=0;i<count;i++){
+        if(students[i].id==id){
+            DisplayStudentbyID(students,i);
+            return 0;
+        }
+    }
+    printf("Student with this ID not found");
+    return 0;
+}
+
+
+//!Finding average grade by id
+float find_average_grade_by_id(struct Student *students,int count,int id){
+    for(int i=0;i<count;i++){
+        if(students[i].id==id){
+            float sum = students[i].english_grade + students[i].math_grade + students[i].sciences_grade +
+                        students[i].language_grade + students[i].portfolio_rating + students[i].coverletter_rating +
+                        students[i].refletter_rating;
+            float average=sum/7.0;
+            printf("%f",average);
+            return average;  // Average of 7 grades
+        }
+    }
+    return -1;
+
+}
+
 int main() {
     const char *filename = "/Users/devanshpanchal/Desktop/Technische Informatik TUB/home_projects/Student_data_base/student-dataset.csv";  // Change to your file path
     struct Student students[350];  // Set a fixed maximum number of students (e.g., 100)
@@ -110,7 +162,9 @@ int main() {
         return 1;
     }
 
-    displayStudents(students, studentCount);
+    //AlldisplayStudents(students, studentCount);
+    find_student_by_id(students,studentCount,10);
+    find_average_grade_by_id(students,studentCount,10);
 
     return 0;
 }
