@@ -5,15 +5,16 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <dirent.h>
 
-// Function to read user input
+//!Function to read user input
 void read_input(char *input) {
     printf("myshell> ");
     fgets(input, MAX_INPUT, stdin);
     input[strcspn(input, "\n")] = 0;  // Remove newline character
 }
 
-// Function to parse input into command and arguments
+//!Function to parse input into command and arguments
 void parse_input(char *input, char **args) {
     char *token = strtok(input, " ");
     int i = 0;
@@ -23,6 +24,23 @@ void parse_input(char *input, char **args) {
     }
     args[i] = NULL;  // Null-terminate the argument list
 }
+
+
+//! Function for list directory
+void list_directory(const char *path){
+    DIR *dir=opendir(path); //? allows to read contents of a directory
+    if(dir==NULL){
+        perror("ls");
+        return;
+    }
+    struct dirent *entry;
+    while((entry=readdir(dir))!=NULL){
+        printf("%s", entry->d_name);
+    }
+    printf("\n");
+    closedir(dir);
+}
+
 
 // Function to execute commands
 void execute_command(char **args) {
@@ -38,6 +56,10 @@ void execute_command(char **args) {
                 perror("cd");
             }
         }
+        return;
+    }
+    else if(strcmp(args[0],"ls")==0){
+        list_directory(args[1] ? args[1]:".");
         return;
     }
     
