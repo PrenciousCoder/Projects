@@ -62,29 +62,42 @@ void prensent_working_directory(){
     }
 }
 
-//!Function to execute commands
-void execute_command(char **args) {
-    if (args[0] == NULL) return;  // Empty command
-
-    //! Output redirection
-    int i =0;
+//! Output redirection
+void output_redirection(char **args){
+    int i=0;
     int fd=-1;
+
     while(args[i]!=NULL){
         if(strcmp(args[i],">")==0){
             if(args[i+1]==NULL){
-                fprintf(stderr,"Syntax error: Mo output file specified\n");
+                fprintf(stderr,"Sytax error: No output file Specified\n");
                 return;
             }
-            fd=open(args[i+1],O_WRONLY | O_CREAT | O_TRUNC,0644);
+            fd=open(args[i+1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
             if(fd==-1){
                 perror("open");
                 return;
             }
+
+            //!Redirect output to the file
+            if(dup2(fd,STDOUT_FILENO)==-1){
+                perror("dup2");
+                close(fd);
+                return;
+            }
+            close(fd);
+
+            //!Remove ">" and file name from args
             args[i]=NULL;
             break;
         }
         i++;
     }
+}
+
+//!Function to execute commands
+void execute_command(char **args) {
+    if (args[0] == NULL) return;  // Empty command
 
     
     if (strcmp(args[0], "exit") == 0) {
@@ -117,6 +130,8 @@ void execute_command(char **args) {
     pid_t pid = fork();
     if (pid == 0) {
         // Child process
+        output_redirection(args);
+        
         if (execvp(args[0], args) == -1) {
             perror("myshell");
         }
