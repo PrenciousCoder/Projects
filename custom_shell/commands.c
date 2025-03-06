@@ -6,6 +6,8 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <dirent.h>
+#include <fcntl.h>
+
 
 //!Function to read user input
 void read_input(char *input) {
@@ -63,6 +65,27 @@ void prensent_working_directory(){
 //!Function to execute commands
 void execute_command(char **args) {
     if (args[0] == NULL) return;  // Empty command
+
+    //! Output redirection
+    int i =0;
+    int fd=-1;
+    while(args[i]!=NULL){
+        if(strcmp(args[i],">")==0){
+            if(args[i+1]==NULL){
+                fprintf(stderr,"Syntax error: Mo output file specified\n");
+                return;
+            }
+            fd=open(args[i+1],O_WRONLY | O_CREAT | O_TRUNC,0644);
+            if(fd==-1){
+                perror("open");
+                return;
+            }
+            args[i]=NULL;
+            break;
+        }
+        i++;
+    }
+
     
     if (strcmp(args[0], "exit") == 0) {
         exit(0);
