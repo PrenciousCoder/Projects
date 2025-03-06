@@ -8,6 +8,87 @@
 #include <dirent.h>
 #include <fcntl.h>
 
+#define MAX_ARGS 100
+#define MAX_CMDS 10
+
+//!Function to parse commands "|"
+int parse_pipes(char *input, char **commands){
+    int count=0;
+    char *cmd=strtok(input, "|");
+
+    while(cmd!=NULL){
+        commands[count++]=cmd;
+        cmd=strtok(NULL,"|");
+
+    }
+    return count;
+
+}
+
+//!Parsing single command into arguments
+void parse_command(char *cmd,char **args){
+    int i=0;
+    char *arg=strtok(cmd," ");
+    while(arg!=NULL){
+        args[i++]=arg;
+        arg=strtok(NULL," ");
+    }
+    args[i]=NULL;
+}
+
+//! function to execute piped commands
+void execute_pipes(char *input){
+    char *commands[MAX_CMDS];
+    int num_cmds=parse_pipes(input,commands);
+
+    int pipefd[2*(num_cmds-1)];
+
+    //!Create pipes
+    for(int i=0;i<num_cmds-1;i++){
+        if(pipe(pipefd+2*i)==-1){
+            perror("pipe");
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    //!loop through the commands and execute
+    for(int i=0;i<num_cmds;i++){
+        char *args[MAX_ARGS];
+        parse_command(commands[i],args);
+
+        pid_t pid=fork();
+        if(pid==0){ //?Child process
+            if(i>0){
+                dup2(pipefd[2*(i-1)],STDIN_FILENO);
+            }
+            if(i<num_cmds-1){
+                dup2(pipefd[2*i+1],STDOUT_FILENO);
+            }
+
+            for(int j=0;j<2*(num_cmds-1);j++){
+                close(pipefd[j]);
+            }
+
+            if(execvp(args[0],args)==-1){
+                perror("execvp");
+                exit(EXIT_FAILURE);
+            }
+        }
+    }
+
+    //!Closing all pipes in the parent
+    for(int i=0;i<2*(num_cmds-1);i++){
+        close(pipefd[i]);
+    }
+
+    //!Wait for all child processes
+    for(int i=0;i<num_cmds;i++){
+        wait(NULL);
+    }
+
+
+}
+
 
 //!Function to read user input
 void read_input(char *input) {
