@@ -41,8 +41,26 @@ void list_directory(const char *path){
     closedir(dir);
 }
 
+//! Echo function
+void echo_command(char **args){
+    for(int i =1;args[i]!=NULL;i++){
+        printf("%s ",args[i]);
+    }
+    printf("\n");
+}
 
-// Function to execute commands
+//!Function to print current working directory
+void prensent_working_directory(){
+    char cwd[1024];
+    if(getcwd(cwd,sizeof(cwd))!=NULL){
+        printf("%s\n",cwd);
+    }
+    else{
+        perror("pwd");
+    }
+}
+
+//!Function to execute commands
 void execute_command(char **args) {
     if (args[0] == NULL) return;  // Empty command
     
@@ -60,6 +78,16 @@ void execute_command(char **args) {
     }
     else if(strcmp(args[0],"ls")==0){
         list_directory(args[1] ? args[1]:".");
+        return;
+    }
+    else if(strcmp(args[0],"pwd")==0){
+        prensent_working_directory();
+        return;
+    }
+
+    //!Execution of echo function
+    else if(strcmp(args[0],"echo")==0){
+        echo_command(args);
         return;
     }
     
