@@ -9,7 +9,7 @@
 #include <fcntl.h>
 
 #define MAX_ARGS 100
-#define MAX_CMDS 10
+#define MAX_CMDS 100
 
 //!Function to parse commands "|"
 int parse_pipes(char *input, char **commands){
